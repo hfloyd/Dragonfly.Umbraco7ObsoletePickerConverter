@@ -13,7 +13,14 @@
     <PackageProjectUrl>https://github.com/hfloyd/Dragonfly.Umbraco7ObsoletePickerConverter</PackageProjectUrl>
     <RepositoryUrl>https://github.com/hfloyd/Dragonfly.Umbraco7ObsoletePickerConverter</RepositoryUrl>
     <PackageId>Dragonfly.Umbraco7ObsoletePickerConverter</PackageId>
+    <Version>0.0.1</Version>
+ 	<AssemblyName>Dragonfly.Umbraco7ObsoletePickerConverter</AssemblyName>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Dragonfly.Net" Version="1.16.0" />
+    <PackageReference Include="Dragonfly.Umbraco7" Version="2.4.0" />
+    <PackageReference Include="UmbracoCms.Core" Version="7.15.4" PrivateAssets="All" />
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Configuration" />
