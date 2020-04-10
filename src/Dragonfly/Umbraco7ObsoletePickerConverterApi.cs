@@ -28,13 +28,46 @@
     [IsBackOffice]
     public class Umbraco7ObsoletePickerConverterApiController : UmbracoAuthorizedApiController
     {
-        #region Converting Old Picker Ints to New Udis
+        /// /Umbraco/backoffice/Api/Umbraco7ObsoletePickerConverterApi/Help
+        [System.Web.Http.AcceptVerbs("GET")]
+        public HttpResponseMessage Help()
+        {
+            var returnSB = new StringBuilder();
+
+            returnSB.AppendLine("<h1>Welcome to the Umbraco 7 Obsolete Picker Converter</h1>");
+            returnSB.AppendLine("<p>Use this tool when you need to convert from Legacy (Obsolete) picker property editors to the new GUID-based ones.</p>");
+            returnSB.AppendLine("<h2>Available Functions:</h2>");
+
+            returnSB.AppendLine("<h3>Check Node Property Data</h2>");
+            returnSB.AppendLine("<p><a href=\"/Umbraco/backoffice/Api/Umbraco7ObsoletePickerConverterApi/CheckAllDataTypes?DoUpdates=false\" target=\"_blank\">Check All DataTypes</a> - Will only return information about the affected Datatypes</p>");
+
+            returnSB.AppendLine("<h3>Update Node Property Data</h2>");
+            returnSB.AppendLine("<p><a href=\"/Umbraco/backoffice/Api/Umbraco7ObsoletePickerConverterApi/CheckAllDataTypes?DoUpdates=false\" target=\"_blank\">Update All DataTypes</a> - In a large site this can take a long time to run.</p>");
+            returnSB.AppendLine("<p><a href=\"/Umbraco/backoffice/Api/Umbraco7ObsoletePickerConverterApi/UpdateDataTypePickerData?DataTypeId=0\" target=\"_blank\">Update Specific DataType</a> - You can append the DataType ID number to this call to only update Doctypes and Content nodes that use a specific DataType.</p>");
+
+            //returnSB.AppendLine("<p>XXX</p>");
+            //returnSB.AppendLine("<p>XXX</p>");
+
+            //TODO: Generate Links for all affected DataTypes
+
+
+            return new HttpResponseMessage()
+            {
+                Content = new StringContent(
+                    returnSB.ToString(),
+                    Encoding.UTF8,
+                    "text/html"
+                )
+            };
+        }
+
+        #region Converting Old Picker DataType Ints to New Udis
 
         /// /Umbraco/backoffice/Api/Umbraco7ObsoletePickerConverterApi/CheckAllDataTypes?DoUpdates=false
         [System.Web.Http.AcceptVerbs("GET")]
         public HttpResponseMessage CheckAllDataTypes(bool DoUpdates = false)
         {
-            var fixerService = new PickerFixService(Services);
+            var fixerService = new PickerFixService(Services, Umbraco);
             IDataTypeService dataTypeService = Services.DataTypeService;
 
             var returnSB = new StringBuilder();
@@ -72,17 +105,20 @@
             mainStatus.MessageDetails += $"== DataTypes which need to have their PropertyEditor changed to the new version: {dtsToChangePropEd.Count}\n";
             foreach (var def in dtsToChangePropEd)
             {
-                mainStatus.MessageDetails += $"-- {def.Name} ({def.PropertyEditorAlias}) #{def.Id} \n";
+                var countDocTypes = fixerService.GetGroupedDocTypesWithProps(def.Id).Count();
+                mainStatus.MessageDetails += $"-- {def.Name} ({def.PropertyEditorAlias}) #{def.Id} [{countDocTypes} Document Types Affected]\n";
             }
             mainStatus.MessageDetails += $"== DataTypes which need to have their data checked and converted: {dtsToCheckData.Count}\n";
             foreach (var def in dtsToCheckData)
             {
-                mainStatus.MessageDetails += $"-- {def.Name} ({def.PropertyEditorAlias}) #{def.Id} \n";
+                var countDocTypes = fixerService.GetGroupedDocTypesWithProps(def.Id).Count();
+                mainStatus.MessageDetails += $"-- {def.Name} ({def.PropertyEditorAlias}) #{def.Id} [{countDocTypes} Document Types Affected]\n";
             }
             mainStatus.MessageDetails += $"== DataTypes which do NOT need to be checked or updated: {dtsOK.Count}\n";
             foreach (var def in dtsOK)
             {
-                mainStatus.MessageDetails += $"-- {def.Name} ({def.PropertyEditorAlias}) #{def.Id} \n";
+                var countDocTypes = fixerService.GetGroupedDocTypesWithProps(def.Id).Count();
+                mainStatus.MessageDetails += $"-- {def.Name} ({def.PropertyEditorAlias}) #{def.Id} [{countDocTypes} Document Types Affected]\n";
             }
 
             mainStatus.Success = true;
@@ -107,7 +143,7 @@
         [System.Web.Http.AcceptVerbs("GET")]
         public HttpResponseMessage UpdateDataTypePickerData(string DataTypeGuid)
         {
-            var fixerService = new PickerFixService(Services);
+            var fixerService = new PickerFixService(Services, Umbraco);
             var returnSB = new StringBuilder();
 
             var dtGuid = new Guid(DataTypeGuid);
@@ -131,14 +167,21 @@
         [System.Web.Http.AcceptVerbs("GET")]
         public HttpResponseMessage UpdateDataTypePickerData(int DataTypeId)
         {
-            var fixerService = new PickerFixService(Services);
             var returnSB = new StringBuilder();
-            
-            var mainStatus = fixerService.DoUpdatePickerData(DataTypeId);
 
-            string json = JsonConvert.SerializeObject(mainStatus);
+            if (DataTypeId == 0)
+            {
+                var errorMsg = "Please append a valid DataType Id to the URL.";
+                returnSB.AppendLine(errorMsg);
+            }
+            else
+            {
+                var fixerService = new PickerFixService(Services, Umbraco);
+                var mainStatus = fixerService.DoUpdatePickerData(DataTypeId);
+                string json = JsonConvert.SerializeObject(mainStatus);
 
-            returnSB.AppendLine(json);
+                returnSB.AppendLine(json);
+            }
 
             return new HttpResponseMessage()
             {
@@ -149,7 +192,7 @@
                 )
             };
         }
-   
+
         #endregion
 
         #region Tests & Examples

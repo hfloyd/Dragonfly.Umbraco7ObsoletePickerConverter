@@ -13,12 +13,13 @@
     <PackageProjectUrl>https://github.com/hfloyd/Dragonfly.Umbraco7ObsoletePickerConverter</PackageProjectUrl>
     <RepositoryUrl>https://github.com/hfloyd/Dragonfly.Umbraco7ObsoletePickerConverter</RepositoryUrl>
     <PackageId>Dragonfly.Umbraco7ObsoletePickerConverter</PackageId>
-    <Version>0.0.1</Version>
+    <Version>1.0.1</Version>
  	<AssemblyName>Dragonfly.Umbraco7ObsoletePickerConverter</AssemblyName>
+ 	<PackageReleaseNotes>Small fix to NuGet dependency</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Dragonfly.Net" Version="1.16.0" />
-    <PackageReference Include="Dragonfly.Umbraco7" Version="2.4.0" />
+    <PackageReference Include="Dragonfly.Umbraco7" Version="2.5.0" />
     <PackageReference Include="UmbracoCms.Core" Version="7.15.4" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
@@ -29,4 +30,8 @@
   </ItemGroup>
 
   <Import Project="..\Custom.targets" />
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="REM XCOPY /s /y  &quot;$(TargetDir)$(TargetName).*&quot;  &quot;C:\...Web\bin&quot;" />
+  </Target>
 </Project>
