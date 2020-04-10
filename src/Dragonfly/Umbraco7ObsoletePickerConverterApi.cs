@@ -35,7 +35,7 @@
             var returnSB = new StringBuilder();
 
             returnSB.AppendLine("<h1>Welcome to the Umbraco 7 Obsolete Picker Converter</h1>");
-            returnSB.AppendLine("<p>Use this tool when you need to convert from Legacy (Obsolete) picker property editors to the new GUID-based ones.</p>");
+            returnSB.AppendLine("<p>Use this tool when you need to convert from Legacy (Obsolete) picker property editors to the new Udi-based ones.</p>");
             returnSB.AppendLine("<h2>Available Functions:</h2>");
 
             returnSB.AppendLine("<h3>Check Node Property Data</h2>");
